@@ -60,7 +60,6 @@ class Power : public ::aidl::android::hardware::power::BnPower {
     ndk::ScopedAStatus getSessionChannel(int32_t tgid, int32_t uid,
                                          ChannelConfig *_aidl_return) override;
     ndk::ScopedAStatus closeSessionChannel(int32_t tgid, int32_t uid) override;
-    binder_status_t dump(int fd, const char **args, uint32_t numArgs) override;
 
   private:
     std::shared_ptr<DisplayLowPower> mDisplayLowPower;
