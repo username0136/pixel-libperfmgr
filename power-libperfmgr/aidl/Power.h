@@ -22,8 +22,7 @@
 #include <memory>
 #include <thread>
 
-#include "aidl/android/hardware/power/ChannelConfig.h"
-#include "aidl/android/hardware/power/SessionConfig.h"
+#include "adaptivecpu/AdaptiveCpu.h"
 #include "disp-power/DisplayLowPower.h"
 #include "disp-power/InteractionHandler.h"
 
@@ -34,16 +33,13 @@ namespace power {
 namespace impl {
 namespace pixel {
 
-using android::hardware::power::Boost;
-using android::hardware::power::ChannelConfig;
-using android::hardware::power::IPowerHintSession;
-using android::hardware::power::Mode;
-using android::hardware::power::SessionConfig;
-using android::hardware::power::SessionTag;
+using ::aidl::android::hardware::power::Boost;
+using ::aidl::android::hardware::power::IPowerHintSession;
+using ::aidl::android::hardware::power::Mode;
 
 class Power : public ::aidl::android::hardware::power::BnPower {
   public:
-    Power(std::shared_ptr<DisplayLowPower> dlpw);
+    Power(std::shared_ptr<DisplayLowPower> dlpw, std::shared_ptr<AdaptiveCpu> adaptiveCpu);
     ndk::ScopedAStatus setMode(Mode type, bool enabled) override;
     ndk::ScopedAStatus isModeSupported(Mode type, bool *_aidl_return) override;
     ndk::ScopedAStatus setBoost(Boost type, int32_t durationMs) override;
@@ -52,20 +48,13 @@ class Power : public ::aidl::android::hardware::power::BnPower {
                                          const std::vector<int32_t> &threadIds,
                                          int64_t durationNanos,
                                          std::shared_ptr<IPowerHintSession> *_aidl_return) override;
-    ndk::ScopedAStatus createHintSessionWithConfig(
-            int32_t tgid, int32_t uid, const std::vector<int32_t> &threadIds, int64_t durationNanos,
-            SessionTag tag, SessionConfig *config,
-            std::shared_ptr<IPowerHintSession> *_aidl_return) override;
     ndk::ScopedAStatus getHintSessionPreferredRate(int64_t *outNanoseconds) override;
-    ndk::ScopedAStatus getSessionChannel(int32_t tgid, int32_t uid,
-                                         ChannelConfig *_aidl_return) override;
-    ndk::ScopedAStatus closeSessionChannel(int32_t tgid, int32_t uid) override;
 
   private:
     std::shared_ptr<DisplayLowPower> mDisplayLowPower;
+    std::shared_ptr<AdaptiveCpu> mAdaptiveCpu;
     std::unique_ptr<InteractionHandler> mInteractionHandler;
     std::atomic<bool> mSustainedPerfModeOn;
-    int32_t mServiceVersion;
 };
 
 }  // namespace pixel
